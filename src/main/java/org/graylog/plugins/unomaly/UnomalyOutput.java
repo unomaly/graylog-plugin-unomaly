@@ -28,8 +28,6 @@ import java.util.logging.Logger;
 public class UnomalyOutput implements MessageOutput {
 
     private Logger log = Logger.getLogger(UnomalyOutput.class.getName());
-    private String host;
-    private String protocol;
     private URI endpoint;
     private OkHttpClient client;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -38,8 +36,8 @@ public class UnomalyOutput implements MessageOutput {
 
     @Inject
     public UnomalyOutput(@Assisted Stream stream, @Assisted Configuration conf) throws MessageOutputConfigurationException {
-        host = conf.getString("host");
-        protocol = conf.getString("protocol").toLowerCase();
+        String host = conf.getString("host");
+        String protocol = conf.getString("protocol").toLowerCase();
         client = new OkHttpClient();
 
         try {
@@ -69,7 +67,7 @@ public class UnomalyOutput implements MessageOutput {
     public void write(Message message) throws Exception {
         List<Object> body = new ArrayList<>();
 
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         data.put("message", message.getMessage());
         data.put("source", message.getSource());
         data.put("timestamp", message.getTimestamp().toString());
@@ -88,7 +86,7 @@ public class UnomalyOutput implements MessageOutput {
         List<Object> body = new ArrayList<>();
 
         for (Message m: messages) {
-            Map<String, Object> data = new HashMap<String, Object>();
+            Map<String, Object> data = new HashMap<>();
             data.put("message", m.getMessage());
             data.put("source", m.getSource());
             data.put("timestamp", m.getTimestamp().toString());
@@ -102,7 +100,7 @@ public class UnomalyOutput implements MessageOutput {
         postPayload(endpoint, json);
     }
 
-    public void postPayload(URI endpointURI, String body) throws IOException {
+    private void postPayload(URI endpointURI, String body) throws IOException {
         String endpoint = endpointURI.toString();
         RequestBody reqBody = RequestBody.create(JSON, body);
         Request request = new Request.Builder()
