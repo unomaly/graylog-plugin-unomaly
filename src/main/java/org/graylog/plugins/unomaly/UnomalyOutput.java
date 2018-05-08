@@ -150,7 +150,7 @@ public class UnomalyOutput implements MessageOutput {
                     "host",
                     "Unomaly hostname",
                     "unomaly.domain.int",
-                    "Base URL of the Unomaly instance where to send logs to.",
+                    "Unomaly instance hostname where you want to ship logs.",
                     ConfigurationField.Optional.NOT_OPTIONAL));
             final Map<String, String> protocols = ImmutableMap.of("http", "HTTP", "https", "HTTPS");
             configurationRequest.addField(new DropdownField(
@@ -158,7 +158,7 @@ public class UnomalyOutput implements MessageOutput {
                     "Protocol to use for sending logs",
                     "https",
                     protocols,
-                    "The protocol used for sending messages to Unomaly",
+                    "The protocol used for communicating with the Unomaly API.",
                     ConfigurationField.Optional.NOT_OPTIONAL)
             );
 
