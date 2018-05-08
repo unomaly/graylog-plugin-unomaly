@@ -2,7 +2,7 @@ package org.graylog.plugins.unomaly;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.inject.assistedinject.Assisted;
 import okhttp3.*;
 import org.graylog2.plugin.Message;
 import org.graylog2.plugin.configuration.Configuration;
@@ -11,26 +11,19 @@ import org.graylog2.plugin.configuration.fields.ConfigurationField;
 import org.graylog2.plugin.configuration.fields.DropdownField;
 import org.graylog2.plugin.configuration.fields.TextField;
 import org.graylog2.plugin.outputs.MessageOutput;
+import org.graylog2.plugin.outputs.MessageOutputConfigurationException;
+import org.graylog2.plugin.streams.Stream;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-
-import javax.inject.Inject;
-import javax.net.ssl.*;
-import javax.print.attribute.URISyntax;
-
-import com.google.inject.assistedinject.Assisted;
-import org.graylog2.plugin.outputs.MessageOutputConfigurationException;
-import org.graylog2.plugin.streams.Stream;
 
 public class UnomalyOutput implements MessageOutput {
 
