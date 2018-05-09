@@ -111,8 +111,11 @@ public class UnomalyOutput implements MessageOutput {
         Response response = client.newCall(request).execute();
 
         if (!response.isSuccessful()) {
+            response.body().close();
             throw new Error("Post to Unomaly endpoint not successful");
         }
+
+        response.body().close();
     }
 
     public interface Factory extends MessageOutput.Factory<UnomalyOutput> {
