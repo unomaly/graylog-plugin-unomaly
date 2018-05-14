@@ -68,13 +68,7 @@ public class UnomalyOutput implements MessageOutput {
         data.put("message", message.getMessage());
         data.put("source", message.getSource());
         data.put("timestamp", message.getTimestamp().toString());
-        //data.put("metadata", message.getFields());
-
-        Map<String, Object> metadata = new HashMap<>();
-        message.getFields().forEach((k, v) ->
-                metadata.put(k, String.valueOf(v))
-        );
-        data.put("metadata", metadata);
+        data.put("metadata", getEventFieldsAsStrings(message));
 
         body.add(data);
 
@@ -93,19 +87,21 @@ public class UnomalyOutput implements MessageOutput {
             data.put("message", m.getMessage());
             data.put("source", m.getSource());
             data.put("timestamp", m.getTimestamp().toString());
-            //data.put("metadata", m.getFields());
-
-            Map<String, Object> metadata = new HashMap<>();
-            m.getFields().forEach((k, v) ->
-                metadata.put(k, String.valueOf(v))
-            );
-            data.put("metadata", metadata);
+            data.put("metadata", getEventFieldsAsStrings(m));
 
             body.add(data);
         }
 
         json = gson.toJson(body);
         postPayload(endpoint, json);
+    }
+
+    private HashMap<String, String> getEventFieldsAsStrings(Message m) {
+        HashMap<String, String> metadata = new HashMap<>();
+        m.getFields().forEach((k, v) ->
+            metadata.put(k, String.valueOf(v))
+        );
+        return metadata;
     }
 
     private void postPayload(URI endpointURI, String body) throws IOException {
