@@ -64,7 +64,7 @@ public class UnomalyOutput implements MessageOutput {
     public void write(Message message) throws Exception {
         List<Object> body = new ArrayList<>();
 
-        Map<String, Object> data = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
         data.put("message", message.getMessage());
         data.put("source", message.getSource());
         data.put("timestamp", message.getTimestamp().toString());
@@ -83,7 +83,7 @@ public class UnomalyOutput implements MessageOutput {
         List<Object> body = new ArrayList<>();
 
         for (Message m: messages) {
-            Map<String, Object> data = new HashMap<>();
+            HashMap<String, Object> data = new HashMap<>();
             data.put("message", m.getMessage());
             data.put("source", m.getSource());
             data.put("timestamp", m.getTimestamp().toString());
