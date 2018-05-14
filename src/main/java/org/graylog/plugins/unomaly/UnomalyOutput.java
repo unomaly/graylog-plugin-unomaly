@@ -99,7 +99,16 @@ public class UnomalyOutput implements MessageOutput {
     private HashMap<String, String> getEventFieldsAsStrings(Message m) {
         HashMap<String, String> metadata = new HashMap<>();
         m.getFields().forEach((k, v) ->
-            metadata.put(k, String.valueOf(v))
+                {
+                    // Do not send duplicate data
+                    String strVal = String.valueOf(v);
+                    switch (k) {
+                        case "message":
+                            break;
+                        default:
+                            metadata.put(k, strVal);
+                    }
+                }
         );
         return metadata;
     }
