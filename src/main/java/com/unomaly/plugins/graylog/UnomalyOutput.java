@@ -1,4 +1,4 @@
-package org.graylog.plugins.unomaly;
+package com.unomaly.plugins.graylog;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;

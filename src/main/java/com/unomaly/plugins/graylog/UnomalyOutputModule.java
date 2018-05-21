@@ -1,4 +1,4 @@
-package org.graylog.plugins.unomaly;
+package com.unomaly.plugins.graylog;
 
 import com.google.inject.multibindings.MapBinder;
 import org.graylog2.plugin.PluginConfigBean;

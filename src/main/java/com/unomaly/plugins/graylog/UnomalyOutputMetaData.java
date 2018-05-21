@@ -1,4 +1,4 @@
-package org.graylog.plugins.unomaly;
+package com.unomaly.plugins.graylog;
 
 import org.graylog2.plugin.PluginMetaData;
 import org.graylog2.plugin.ServerStatus;
