@@ -68,7 +68,7 @@ public class UnomalyOutput implements MessageOutput {
         data.put("message", message.getMessage());
         data.put("source", message.getSource());
         data.put("timestamp", message.getTimestamp().toString());
-        data.put("metadata", getEventFieldsAsStrings(message));
+        data.put("metadata", getAndFixMetadata(message));
 
         body.add(data);
 
@@ -87,7 +87,7 @@ public class UnomalyOutput implements MessageOutput {
             data.put("message", m.getMessage());
             data.put("source", m.getSource());
             data.put("timestamp", m.getTimestamp().toString());
-            data.put("metadata", getEventFieldsAsStrings(m));
+            data.put("metadata", getAndFixMetadata(m));
 
             body.add(data);
         }
@@ -96,7 +96,7 @@ public class UnomalyOutput implements MessageOutput {
         postPayload(endpoint, json);
     }
 
-    private HashMap<String, String> getEventFieldsAsStrings(Message m) {
+    private HashMap<String, String> getAndFixMetadata(Message m) {
         HashMap<String, String> metadata = new HashMap<>();
         m.getFields().forEach((k, v) ->
                 {
