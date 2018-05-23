@@ -12,7 +12,7 @@
 
     <name>${project.artifactId}</name>
     <description>Graylog ${project.artifactId} plugin.</description>
-    <url>https://www.graylog.org</url>
+    <url>https://unomaly.com</url>
 
     <developers>
         <developer>
@@ -22,9 +22,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:https://github.com/andskli/graylog-plugin-unomaly.git</connection>
-        <developerConnection>scm:git:git@github.com:https://github.com/andskli/graylog-plugin-unomaly.git</developerConnection>
-        <url>https://github.com/https://github.com/andskli/graylog-plugin-unomaly</url>
+        <connection>scm:git:git@github.com:https://github.com/unomaly/graylog-plugin-unomaly.git</connection>
+        <developerConnection>scm:git:git@github.com:https://github.com/unomaly/graylog-plugin-unomaly.git</developerConnection>
+        <url>https://github.com/https://github.com/unomaly/graylog-plugin-unomaly</url>
         <tag>1.0.0</tag>
     </scm>
 
