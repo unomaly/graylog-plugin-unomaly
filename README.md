@@ -4,7 +4,7 @@
 
 This plugin is intended for streaming logs to the Unomaly REST API.
 
-**Required Graylog version:** 2.0 and later
+**Required Graylog version:** 2.4.0 and later
 
 ## Installation
 
