@@ -1,23 +1,29 @@
-# Sample Plugin for Graylog
+# Unomaly Output Plugin for Graylog
 
-[![Build Status](https://travis-ci.org/https://github.com/Graylog2/graylog-plugin-sample.svg?branch=master)](https://travis-ci.org/https://github.com/Graylog2/graylog-plugin-sample)
+[![Build Status](https://travis-ci.org/https://github.com/unomaly/graylog-plugin-unomaly.svg?branch=master)](https://travis-ci.org/https://github.com/unomaly/graylog-plugin-unomaly)
 
-__Use this paragraph to enter a description of your plugin.__
+This plugin is intended for streaming logs to the Unomaly REST API.
 
 **Required Graylog version:** 2.0 and later
 
-Installation
-------------
+## Installation
 
-[Download the plugin](https://github.com/https://github.com/Graylog2/graylog-plugin-sample/releases)
+[Download the plugin](https://github.com/unomaly/graylog-plugin-unomaly/releases)
 and place the `.jar` file in your Graylog plugin directory. The plugin directory
 is the `plugins/` folder relative from your `graylog-server` directory by default
 and can be configured in your `graylog.conf` file.
 
 Restart `graylog-server` and you are done.
 
-Development
------------
+### Configuration of Graylog
+
+The Unomaly plugin will be available in Graylog like any other output plugin. It can
+for example be attached to one or more [streams](http://docs.graylog.org/en/2.4/pages/streams.html) or [processing pipelines](http://docs.graylog.org/en/2.4/pages/pipelines.html).
+The latter is the way to go if you need to perform record transformation, like
+changing the source of a log event.
+
+## Development
+
 
 You can improve your development experience for the web interface part of your plugin
 dramatically by making use of hot reloading. To do this, do the following:
@@ -27,14 +33,29 @@ dramatically by making use of hot reloading. To do this, do the following:
 * `ln -s $YOURPLUGIN plugin/`
 * `npm install && npm start`
 
-Usage
------
+## Usage
 
-__Use this paragraph to document the usage of your plugin__
+### Changing the source / key in Unomaly
 
+By default, this plugin will use the `source` field in the Graylog events as
+the source for events sent to Unomaly. This might not always be ideal if you
+are using a microservice based architecture, most likely, you'd want to find
+anomalies per microservice, rather than per container. You can change this
+behavior by adding a *[pipeline](http://docs.graylog.org/en/2.4/pages/pipelines.html)* with *rule(s)* in Graylog. Example follows
+below where we mutate the event to have the `service_name` field as the
+specified `source` which Unomaly will see instead.
 
-Getting started
----------------
+```
+rule "transform_unomaly"
+when
+  has_field("service_name")
+then
+  let new_src = to_string($message.service_name);
+  set_field("source", new_src);
+end
+``` 
+
+## Getting started
 
 This project is using Maven 3 and requires Java 7 or higher.
 
@@ -44,8 +65,7 @@ This project is using Maven 3 and requires Java 7 or higher.
 * Copy generated JAR file in target directory to your Graylog plugin directory.
 * Restart the Graylog.
 
-Plugin Release
---------------
+## Plugin Release
 
 We are using the maven release plugin:
 
