@@ -24,7 +24,6 @@ changing the source of a log event.
 
 ## Development
 
-
 You can improve your development experience for the web interface part of your plugin
 dramatically by making use of hot reloading. To do this, do the following:
 
@@ -53,7 +52,7 @@ then
   let new_src = to_string($message.service_name);
   set_field("source", new_src);
 end
-``` 
+```
 
 ## Getting started
 
@@ -69,10 +68,16 @@ This project is using Maven 3 and requires Java 7 or higher.
 
 We are using the maven release plugin:
 
-```
+```shell
 $ mvn release:prepare
 [...]
 $ mvn release:perform
 ```
 
 This sets the version numbers, creates a tag and pushes to GitHub. Travis CI will build the release artifacts and upload to GitHub automatically.
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at
+https://github.com/unomaly/graylog-plugin-unomaly. This project is intended to
+be a safe, welcoming space for collaboration.
