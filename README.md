@@ -1,6 +1,6 @@
 # Unomaly Output Plugin for Graylog
 
-[![Build Status](https://travis-ci.org/https://github.com/unomaly/graylog-plugin-unomaly.svg?branch=master)](https://travis-ci.org/https://github.com/unomaly/graylog-plugin-unomaly)
+[![Build Status](https://travis-ci.org/unomaly/graylog-plugin-unomaly.svg?branch=master)](https://travis-ci.org/unomaly/graylog-plugin-unomaly)
 
 This plugin is intended for streaming logs to the Unomaly REST API.
 

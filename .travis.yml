@@ -2,31 +2,31 @@ sudo: required
 dist: trusty
 language: java
 jdk:
-  - oraclejdk8
+- oraclejdk8
 addons:
   apt:
     packages:
-      - rpm
+    - rpm
 install:
-  - git clone --branch 2.4 --depth=1 --no-single-branch https://github.com/Graylog2/graylog2-server ../graylog2-server
-  - (cd ../graylog2-server && mvn -DskipTests=true compile -B -V)
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dskip.web.build=true -B -V
+- git clone --branch 2.4 --depth=1 --no-single-branch https://github.com/Graylog2/graylog2-server ../graylog2-server
+- (cd ../graylog2-server && mvn -DskipTests=true compile -B -V)
+- mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dskip.web.build=true -B -V
 script:
-  - mvn package -B
+- mvn package -B
 before_deploy:
-#  - mvn jdeb:jdeb && export RELEASE_DEB_FILE=$(ls target/*.deb)
-#  - mvn rpm:rpm && export RELEASE_RPM_FILE=$(find target/ -name '*.rpm' | tail -1)
-  - rm -f target/original-*.jar
-  - export RELEASE_JAR_FILE=$(ls target/*.jar)
-  - echo "Deploying release to GitHub releases"
+- mvn jdeb:jdeb && export RELEASE_DEB_FILE=$(ls target/*.deb)
+- mvn rpm:rpm && export RELEASE_RPM_FILE=$(find target/ -name '*.rpm' | tail -1)
+- rm -f target/original-*.jar
+- export RELEASE_JAR_FILE=$(ls target/*.jar)
+- echo "Deploying release to GitHub releases"
 deploy:
   provider: releases
   api_key:
-    secure: TBD
+    secure: bmbOkfVW/IP7R3QyAz9Cka83b6jneSbgzxvF1QI/VTFzGEGeMqiahJvi1j2YYNar7ENXYwH8y+i8AlTN5Lh9xKWxJ3eINlJariI8vHIYUhGb6e8Hor66JnQQVutZDClN5zx0X3afx+kS768TXLZW+kH7//nS6JJxrIvOxuRiHb7hsP9G/S4DpPWHWZFitBt/Rh9Q4SNgkLyObK2i5CjjassN5uzC3X5KNWy9VP6YN+FGrGG/7Oovzbe1WhT5xuIYoLuFuSKU0VrxCGEHJQFIwH9Unuwh4X7c5rL8blkyao+zSIQtQeZTYBX2eS+f8RQiUGNGHYQJUxJaX0JHdIvrLW38sA9pvk1a4pAURBXU/X9jANlPs1eXj6NJtg4uRd5IikhxMsC8Lv0obrwbLJCt+5inwl7pwvFqAdAt0NcOzW0Z1GoZd8dWPwl2RC67lY4JEUpyG6TH77nDKVuwPf7Yp7FvykJw5DAWnYNwhYx/O21imXOpn0jBCF0ynWhuQWwm/4mbQnGdxtROmqNV5K30PE/l7ipevxbajtFd0AacmCT34RCVsCqr0ux6HUF0UB+lUoVLfUDSfAPakSoAvdspXkNmsNs58GORpsG1SYtiJe0mCtvWAfDLQFbRnGdRAmEqhRku4rfKWbYdPuVVYUa2/8hRNpMoLHYZqJxmEQ9nD38=
   file:
-    - "${RELEASE_JAR_FILE}"
-#    - "${RELEASE_DEB_FILE}"
-#    - "${RELEASE_RPM_FILE}"
+  - "${RELEASE_JAR_FILE}"
+  - "${RELEASE_DEB_FILE}"
+  - "${RELEASE_RPM_FILE}"
   skip_cleanup: true
   on:
     tags: true
