@@ -2,9 +2,11 @@
 
 [![Build Status](https://travis-ci.org/unomaly/graylog-plugin-unomaly.svg?branch=master)](https://travis-ci.org/unomaly/graylog-plugin-unomaly)
 
-This plugin is intended for streaming logs to the Unomaly REST API.
+This plugin is intended for streaming logs to the Unomaly REST API, so that you can algorithmically detect anomalies
+across your entire infrastructure.
 
 **Required Graylog version:** 2.4.0 and later
+**Required Unomaly version:** 2.27 and later
 
 ## Installation
 
