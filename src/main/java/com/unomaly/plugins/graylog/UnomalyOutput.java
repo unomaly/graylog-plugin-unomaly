@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -30,12 +31,15 @@ public class UnomalyOutput implements MessageOutput {
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final Gson gson = new Gson();
+    private static final Integer UNOMALY_BATCH_SIZE = 200;
+    private LinkedBlockingQueue queue;
 
     @Inject
     public UnomalyOutput(@Assisted Stream stream, @Assisted Configuration conf) throws MessageOutputConfigurationException {
         String host = conf.getString("host");
         String protocol = conf.getString("protocol").toLowerCase();
         client = new OkHttpClient();
+        queue = new LinkedBlockingQueue<Message>();
 
         try {
             endpoint = new URI(String.format("%s://%s/v1/batch",
@@ -51,6 +55,8 @@ public class UnomalyOutput implements MessageOutput {
 
     @Override
     public void stop() {
+        log.info("Flushing queue for Unomaly plugin");
+        flushQueue(queue);
         log.info("Stopping Unomaly plugin");
         isRunning.set(false);
     }
@@ -61,39 +67,15 @@ public class UnomalyOutput implements MessageOutput {
     }
 
     @Override
-    public void write(Message message) throws Exception {
-        List<Object> body = new ArrayList<>();
-
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("message", message.getMessage());
-        data.put("source", message.getSource());
-        data.put("timestamp", message.getTimestamp().toString());
-        data.put("metadata", getAndFixMetadata(message));
-
-        body.add(data);
-
-        String json = gson.toJson(body);
-
-        postPayload(endpoint, json);
+    public void write(Message m) throws Exception {
+        addToQueue(m);
     }
 
     @Override
     public void write(List<Message> messages) throws Exception {
-        String json = null;
-        List<Object> body = new ArrayList<>();
-
         for (Message m: messages) {
-            HashMap<String, Object> data = new HashMap<>();
-            data.put("message", m.getMessage());
-            data.put("source", m.getSource());
-            data.put("timestamp", m.getTimestamp().toString());
-            data.put("metadata", getAndFixMetadata(m));
-
-            body.add(data);
+            addToQueue(m);
         }
-
-        json = gson.toJson(body);
-        postPayload(endpoint, json);
     }
 
     private HashMap<String, String> getAndFixMetadata(Message m) {
@@ -129,6 +111,44 @@ public class UnomalyOutput implements MessageOutput {
         }
 
         response.body().close();
+    }
+
+    private void addToQueue(Message m) throws IllegalStateException {
+        if (queue.size() >= UNOMALY_BATCH_SIZE) {
+            flushQueue(queue);
+        }
+        queue.add(m);
+    }
+
+    private void flushQueue(Queue<Message> q) {
+        while (!q.isEmpty()) {
+            String json = null;
+            Message m = null;
+            List<Object> body = new ArrayList<>();
+            for (int i = 0; i < UNOMALY_BATCH_SIZE; i++) {
+                HashMap<String, Object> data = new HashMap<>();
+                try {
+                    m = (Message) queue.take();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+
+                data.put("message", m.getMessage());
+                data.put("source", m.getSource());
+                data.put("timestamp", m.getTimestamp().toString());
+                data.put("metadata", getAndFixMetadata(m));
+
+                body.add(data);
+            }
+
+            //log.info("Number of events in this post request " + String.valueOf(body.size()));
+            json = gson.toJson(body);
+            try {
+                postPayload(endpoint, json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public interface Factory extends MessageOutput.Factory<UnomalyOutput> {
