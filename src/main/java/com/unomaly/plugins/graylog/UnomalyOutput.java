@@ -7,6 +7,7 @@ import okhttp3.*;
 import org.graylog2.plugin.Message;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.configuration.ConfigurationRequest;
+import org.graylog2.plugin.configuration.fields.BooleanField;
 import org.graylog2.plugin.configuration.fields.ConfigurationField;
 import org.graylog2.plugin.configuration.fields.DropdownField;
 import org.graylog2.plugin.configuration.fields.TextField;
@@ -27,6 +28,7 @@ public class UnomalyOutput implements MessageOutput {
 
     private Logger log = Logger.getLogger(UnomalyOutput.class.getName());
     private URI endpoint;
+    private Boolean useGraylogTimestamp;
     private OkHttpClient client;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -38,6 +40,7 @@ public class UnomalyOutput implements MessageOutput {
     public UnomalyOutput(@Assisted Stream stream, @Assisted Configuration conf) throws MessageOutputConfigurationException {
         String host = conf.getString("host");
         String protocol = conf.getString("protocol").toLowerCase();
+        useGraylogTimestamp = conf.getBoolean("useGraylogTimestamp");
         client = new OkHttpClient();
         queue = new LinkedBlockingQueue<Message>();
 
@@ -135,7 +138,9 @@ public class UnomalyOutput implements MessageOutput {
 
                 data.put("message", m.getMessage());
                 data.put("source", m.getSource());
-                data.put("timestamp", m.getTimestamp().toString());
+                if (useGraylogTimestamp) {
+                    data.put("timestamp", m.getTimestamp().toString());
+                }
                 data.put("metadata", getAndFixMetadata(m));
 
                 body.add(data);
@@ -187,6 +192,13 @@ public class UnomalyOutput implements MessageOutput {
                     protocols,
                     "The protocol used for communicating with the Unomaly API.",
                     ConfigurationField.Optional.NOT_OPTIONAL)
+            );
+
+            configurationRequest.addField(new BooleanField(
+                    "useGraylogTimestamp",
+                    "Use Graylog Timestamps?",
+                    true,
+                    "If not checked, Unomaly will use the local timestamp for incoming events")
             );
 
             return configurationRequest;
