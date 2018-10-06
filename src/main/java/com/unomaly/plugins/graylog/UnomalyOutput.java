@@ -29,6 +29,7 @@ public class UnomalyOutput implements MessageOutput {
     private Logger log = Logger.getLogger(UnomalyOutput.class.getName());
     private URI endpoint;
     private Boolean useGraylogTimestamp;
+    private String sourceKey = "source";
     private OkHttpClient client;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -41,6 +42,7 @@ public class UnomalyOutput implements MessageOutput {
         String host = conf.getString("host");
         String protocol = conf.getString("protocol").toLowerCase();
         useGraylogTimestamp = conf.getBoolean("useGraylogTimestamp");
+        sourceKey = conf.getString("source_key");
         client = new OkHttpClient();
         queue = new LinkedBlockingQueue<Message>();
 
@@ -136,8 +138,18 @@ public class UnomalyOutput implements MessageOutput {
                     ex.printStackTrace();
                 }
 
+                // Add the message field
                 data.put("message", m.getMessage());
-                data.put("source", m.getSource());
+
+                // Handle different sources
+                if (sourceKey != "source") {
+                    if (m.hasField(sourceKey)) {
+                        data.put("source", m.getFieldAs(String.class, sourceKey));
+                    } else {
+                        data.put("source", m.getSource());
+                    }
+                }
+
                 if (useGraylogTimestamp) {
                     data.put("timestamp", m.getTimestamp().toString());
                 }
@@ -199,6 +211,14 @@ public class UnomalyOutput implements MessageOutput {
                     "Use Graylog Timestamps?",
                     true,
                     "If not checked, Unomaly will use the local timestamp for incoming events")
+            );
+
+            configurationRequest.addField(new TextField(
+                    "source_key",
+                    "Key in the message to use as source in Unomaly",
+                    "source",
+                    "Which field from the message to use as source. Has to exist on all messages.",
+                    ConfigurationField.Optional.NOT_OPTIONAL)
             );
 
             return configurationRequest;
