@@ -7,10 +7,7 @@ import okhttp3.*;
 import org.graylog2.plugin.Message;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.configuration.ConfigurationRequest;
-import org.graylog2.plugin.configuration.fields.BooleanField;
-import org.graylog2.plugin.configuration.fields.ConfigurationField;
-import org.graylog2.plugin.configuration.fields.DropdownField;
-import org.graylog2.plugin.configuration.fields.TextField;
+import org.graylog2.plugin.configuration.fields.*;
 import org.graylog2.plugin.outputs.MessageOutput;
 import org.graylog2.plugin.outputs.MessageOutputConfigurationException;
 import org.graylog2.plugin.streams.Stream;
@@ -31,11 +28,11 @@ public class UnomalyOutput implements MessageOutput {
     private Boolean useGraylogTimestamp;
     private String sourceKey;
     private String messageKey;
+    private Integer batchSize;
     private OkHttpClient client;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final Gson gson = new Gson();
-    private static final Integer UNOMALY_BATCH_SIZE = 200;
     private LinkedBlockingQueue queue;
 
     @Inject
@@ -45,6 +42,7 @@ public class UnomalyOutput implements MessageOutput {
         useGraylogTimestamp = conf.getBoolean("useGraylogTimestamp");
         sourceKey = conf.getString("source_key");
         messageKey = conf.getString("message_key");
+        batchSize = conf.getInt("batch_size");
         client = new OkHttpClient();
         queue = new LinkedBlockingQueue<Message>();
 
@@ -121,7 +119,7 @@ public class UnomalyOutput implements MessageOutput {
     }
 
     private void addToQueue(Message m) throws IllegalStateException {
-        if (queue.size() >= UNOMALY_BATCH_SIZE) {
+        if (queue.size() >= batchSize) {
             flushQueue(queue);
         }
         queue.add(m);
@@ -132,7 +130,7 @@ public class UnomalyOutput implements MessageOutput {
             String json = null;
             Message m = null;
             List<Object> body = new ArrayList<>();
-            for (int i = 0; i < UNOMALY_BATCH_SIZE; i++) {
+            for (int i = 0; i < batchSize; i++) {
                 HashMap<String, Object> data = new HashMap<>();
                 try {
                     m = (Message) queue.take();
@@ -233,6 +231,14 @@ public class UnomalyOutput implements MessageOutput {
                     "message",
                     "Defaults to message, but could also be full_message or similar. Messages without this field will revert back to the default.",
                     ConfigurationField.Optional.NOT_OPTIONAL)
+            );
+
+            configurationRequest.addField(new NumberField(
+                    "batch_size",
+                    "Unomaly API batch size",
+                    200,
+                    "Number of messages to be posted to the Unomaly API in each post request",
+                    NumberField.Attribute.ONLY_POSITIVE)
             );
 
             return configurationRequest;
