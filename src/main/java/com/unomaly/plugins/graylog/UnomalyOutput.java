@@ -29,7 +29,8 @@ public class UnomalyOutput implements MessageOutput {
     private Logger log = Logger.getLogger(UnomalyOutput.class.getName());
     private URI endpoint;
     private Boolean useGraylogTimestamp;
-    private String sourceKey = "source";
+    private String sourceKey;
+    private String messageKey;
     private OkHttpClient client;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -43,6 +44,7 @@ public class UnomalyOutput implements MessageOutput {
         String protocol = conf.getString("protocol").toLowerCase();
         useGraylogTimestamp = conf.getBoolean("useGraylogTimestamp");
         sourceKey = conf.getString("source_key");
+        messageKey = conf.getString("message_key");
         client = new OkHttpClient();
         queue = new LinkedBlockingQueue<Message>();
 
@@ -139,7 +141,11 @@ public class UnomalyOutput implements MessageOutput {
                 }
 
                 // Add the message field
-                data.put("message", m.getMessage());
+                if ((messageKey != "message") && m.hasField(messageKey)) {
+                        data.put("message", m.getFieldAs(String.class, messageKey));
+                } else {
+                    data.put("message", m.getMessage());
+                }
 
                 // Handle different sources
                 if (sourceKey != "source") {
@@ -218,6 +224,14 @@ public class UnomalyOutput implements MessageOutput {
                     "Key in the message to use as source in Unomaly",
                     "source",
                     "Which field from the message to use as source. Has to exist on all messages.",
+                    ConfigurationField.Optional.NOT_OPTIONAL)
+            );
+
+            configurationRequest.addField(new TextField(
+                    "message_key",
+                    "Message source key",
+                    "message",
+                    "Defaults to message, but could also be full_message or similar. Messages without this field will revert back to the default.",
                     ConfigurationField.Optional.NOT_OPTIONAL)
             );
 
